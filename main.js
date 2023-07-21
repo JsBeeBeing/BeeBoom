@@ -36,9 +36,14 @@ let canvaSize;
 let objectSize;
 let posX;
 let posY
+let level = 0
+let restartGame= false
+let initialx= undefined
+let initialy= undefined
 const player ={
   positionx: undefined,
-  positiony: undefined
+  positiony: undefined,
+
 }
 const gift={
   positionx: undefined,
@@ -48,39 +53,39 @@ let enemiesPositions = []
 
 function movLeft(){
   console.log('Movimiento a la izquierda');
-  player.positionx -=objectSize
-  if (player.positionx<objectSize) {
+  if ((player.positionx - objectSize).toFixed(1)<objectSize) {
     console.log('OUT');
-    player.positionx = objectSize
   }
-  else{startGame()}
+  else{
+    player.positionx -=objectSize
+    startGame()}
 }
 function movRight(){
   console.log('Movimiento a la derecha');
-  player.positionx +=objectSize
-  if (player.positionx>canvaSize) {
+  if ((player.positionx + objectSize).toFixed(1)>canvaSize) {
     console.log('OUT');
-    player.positionx = canvaSize
   }
-  else{startGame()}
+  else{
+    player.positionx +=objectSize
+    startGame()}
 }
 function movUp(){
   console.log('Movimiento a la arriba');
-  player.positiony -=objectSize
-  if (player.positiony <objectSize) {
+  if ((player.positiony - objectSize).toFixed(1)<objectSize) {
     console.log('OUT');
-    player.positiony = objectSize
   }
-  else{startGame()}
+  else{
+    player.positiony -=objectSize
+    startGame()}
 }
 function movDown(){
   console.log('Movimiento a la abajo');
-  player.positiony +=objectSize
-  if (player.positiony >canvaSize) {
+  if ((player.positiony + objectSize).toFixed(1)>canvaSize) {
     console.log('OUT');
-    player.positiony = canvaSize
   }
-  else{startGame()}
+  else{
+    player.positiony +=objectSize
+    startGame()}
 }
 
 function resizeGame(){
@@ -89,7 +94,6 @@ function resizeGame(){
   }else{
     canvaSize = window.innerWidth * 0.80;  
   }
-  
   canvas.setAttribute('width',  canvaSize )
   canvas.setAttribute('height',  canvaSize)
   objectSize = canvaSize/10
@@ -102,35 +106,43 @@ function startGame(){
   ctx.textAlign = 'end'
 
   // A partir de maps.js, ser capaz de renderizar los mapas dentro del arreglo de maps, sabiendo lo que representa cada letra dentro del array
-    const mapa = maps[1].trim()
-    const mapaRows = mapa.split('\n').map(row=> row.trim()) //Si accedo bidemensionalente a un array de string, el segundo indice pertenece a los caracteres que componen al string
+    const mapa = maps[level]
+    if(!mapa){
+      gameWin()
+      return ;
+    }
+  const mapaRows = mapa.trim().split('\n').map(row=> row.trim()) //Si accedo bidemensionalente a un array de string, el segundo indice pertenece a los caracteres que componen al string
   const mapaCol = mapaRows.map(row=> row.split(''))
- enemiesPositions = []
-ctx.clearRect(0,0,canvaSize,canvaSize)
-mapaCol.forEach((row,rowI) => {
-    row.forEach((col,colI)=>{
-      const emoji = emojis[col]
-       posX = objectSize*(colI+1)
-       posY = objectSize*(rowI+1)
-       ctx.fillText(emoji,posX,posY)
-      if(emoji == emojis['O']){
-        if (!player.positionx && !player.positiony) {
-          player.positionx = posX
-          player.positiony = posY
-        }
-        }else if (emoji == emojis['I']) {
-          gift.positionx = posX
-          gift.positiony = posY
-        }else if (emoji == emojis['X']) {
-          enemiesPositions.push({
-            positionx: posX,
-            positiony: posY})
-        }
+  enemiesPositions = []
+  ctx.clearRect(0,0,canvaSize,canvaSize)
+  mapaCol.forEach((row,rowI) => {
+      row.forEach((col,colI)=>{
+        const emoji = emojis[col]
+        posX = objectSize*(colI+1)
+        posY = objectSize*(rowI+1)
         ctx.fillText(emoji,posX,posY)
-        
-      })
-  });
-  movPlayer()
+        if(emoji == emojis['O']){
+          initialx = posX
+          initialy = posY
+          if (!player.positionx && !player.positiony) {
+            player.positionx = posX
+            player.positiony = posY
+          }
+          }else if (emoji == emojis['I']) {
+            gift.positionx = posX
+            gift.positiony = posY
+          }else if (emoji == emojis['X']) {
+            enemiesPositions.push({
+              positionx: posX,
+              positiony: posY})
+          }
+          ctx.fillText(emoji,posX,posY)
+          
+        })
+    });
+  
+    movPlayer()
+
 }
 
 function movPlayer(){
@@ -144,15 +156,34 @@ function movPlayer(){
     const positionsY = player.positiony.toFixed(2) == gift.positiony.toFixed(2)
     
     if (positionsX && positionsY) {
-      console.log('PASS');
+      levelUp()
+      return
     }
-    if(colision){
-      console.log('colission');
+    else if(colision){
+      uLost()
+      return  
     }
     ctx.fillText(emojis['PLAYER'],player.positionx,player.positiony)
 
 }
- 
+function levelUp(){
+  console.log('Pass');
+  level++
+  startGame()
+}
+function gameWin() {
+  console.log('¡Terminaste el juego!');
+}
+
+// al chocar con una bomba volver al inicio del juego
+function uLost(){
+  console.log('Perdistes');
+  player.positionx = initialx
+  player.positiony = initialy
+  ctx.fillText(emojis['PLAYER'],player.positionx,player.positiony)
+}
+
+
 // Tarea: visualizar el movimiento del personaje
 
   // Dibujar emojis: ctx.fillText(emojis['PLAYER'],posX,posY)
@@ -193,7 +224,7 @@ function movPlayer(){
 
 
 // Tarea 2(jul 13 2023): Recrear las colisones, tanto para las bombas como para el regalo 
-
+//Tarea 3 jul 20 2023: al chocar con una bomba volver al inicio del juego
 
 /*  Forma utilizando array bidimensionales para acceder a los caracteres
    console.log(mapa,mapaRows, mapaCol);
