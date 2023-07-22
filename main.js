@@ -37,9 +37,8 @@ let objectSize;
 let posX;
 let posY
 let level = 0
+let lives = 3
 let restartGame= false
-let initialx= undefined
-let initialy= undefined
 const player ={
   positionx: undefined,
   positiony: undefined,
@@ -122,8 +121,6 @@ function startGame(){
         posY = objectSize*(rowI+1)
         ctx.fillText(emoji,posX,posY)
         if(emoji == emojis['O']){
-          initialx = posX
-          initialy = posY
           if (!player.positionx && !player.positiony) {
             player.positionx = posX
             player.positiony = posY
@@ -177,10 +174,16 @@ function gameWin() {
 
 // al chocar con una bomba volver al inicio del juego
 function uLost(){
+  lives--;
   console.log('Perdistes');
-  player.positionx = initialx
-  player.positiony = initialy
-  ctx.fillText(emojis['PLAYER'],player.positionx,player.positiony)
+  console.log(lives);
+  if (lives <=0) {
+    level = 0
+    lives = 3
+  }
+  player.positionx = undefined
+  player.positiony = undefined
+  startGame()
 }
 
 
