@@ -4,6 +4,7 @@ const btnLeft = document.getElementById('btnLeft')
 const btnRight = document.getElementById('btnRight')
 const btnUp = document.getElementById('btnUp')
 const btnDown = document.getElementById('btnDown')
+const heart = document.getElementById('lives')
 window.addEventListener('load', resizeGame);
 window.addEventListener('resize', resizeGame)
 window.addEventListener('keydown',(event)=>{
@@ -100,6 +101,7 @@ function resizeGame(){
 }
 
 function startGame(){
+
   // Dividir en 10 partes iguales el canvas y rellenarlo con el emoji de explosion
   ctx.font = objectSize + 'px Roboto'
   ctx.textAlign = 'end'
@@ -110,6 +112,8 @@ function startGame(){
       gameWin()
       return ;
     }
+
+  showLives()
   const mapaRows = mapa.trim().split('\n').map(row=> row.trim()) //Si accedo bidemensionalente a un array de string, el segundo indice pertenece a los caracteres que componen al string
   const mapaCol = mapaRows.map(row=> row.split(''))
   enemiesPositions = []
@@ -170,6 +174,13 @@ function levelUp(){
 }
 function gameWin() {
   console.log('¡Terminaste el juego!');
+}
+
+function showLives(){
+  //const numbLives = Array(lives).fill(emojis['HEART'])
+  //heart.innerText = numbLives Solucion mia
+  //numbLives.forEach(obj => heart.innerText = obj) Segunda solucion mia
+  heart.innerHTML = emojis["HEART"].repeat(lives) //Solución comunidad
 }
 
 // al chocar con una bomba volver al inicio del juego
