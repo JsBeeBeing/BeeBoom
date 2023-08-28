@@ -5,6 +5,7 @@ const btnRight = document.getElementById('btnRight')
 const btnUp = document.getElementById('btnUp')
 const btnDown = document.getElementById('btnDown')
 const heart = document.getElementById('lives')
+const timeSpan = document.getElementById('time')
 window.addEventListener('load', resizeGame);
 window.addEventListener('resize', resizeGame)
 window.addEventListener('keydown',(event)=>{
@@ -39,7 +40,8 @@ let posX;
 let posY
 let level = 0
 let lives = 3
-let restartGame= false
+let startTime;
+let showingTime;
 const player ={
   positionx: undefined,
   positiony: undefined,
@@ -114,6 +116,10 @@ function startGame(){
     }
 
   showLives()
+  if (!startTime) {
+    startTime = Date.now()
+    showingTime =setInterval(showTime,100)
+  }
   const mapaRows = mapa.trim().split('\n').map(row=> row.trim()) //Si accedo bidemensionalente a un array de string, el segundo indice pertenece a los caracteres que componen al string
   const mapaCol = mapaRows.map(row=> row.split(''))
   enemiesPositions = []
@@ -174,13 +180,8 @@ function levelUp(){
 }
 function gameWin() {
   console.log('¡Terminaste el juego!');
-}
-
-function showLives(){
-  //const numbLives = Array(lives).fill(emojis['HEART'])
-  //heart.innerText = numbLives Solucion mia
-  //numbLives.forEach(obj => heart.innerText = obj) Segunda solucion mia
-  heart.innerHTML = emojis["HEART"].repeat(lives) //Solución comunidad
+  clearInterval(showingTime)
+  localStorage.setItem('time', (timeSpan.innerText))
 }
 
 // al chocar con una bomba volver al inicio del juego
@@ -191,12 +192,26 @@ function uLost(){
   if (lives <=0) {
     level = 0
     lives = 3
+    startTime = undefined
   }
   player.positionx = undefined
   player.positiony = undefined
   startGame()
 }
+function showLives(){
+  //const numbLives = Array(lives).fill(emojis['HEART'])
+  //heart.innerText = numbLives Solucion mia
+  //numbLives.forEach(obj => heart.innerText = obj) Segunda solucion mia
+  heart.innerHTML = emojis["HEART"].repeat(lives) //Solución comunidad
+}
 
+
+
+function showTime(){
+
+  timeSpan.innerHTML = Date.now() - startTime 
+
+}
 
 // Tarea: visualizar el movimiento del personaje
 
